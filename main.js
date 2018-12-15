@@ -1,11 +1,17 @@
+
 const fs = require("fs");
 const path = require("path");
-const tplScript = require("./core/TplScript.js");
-const BASE_DIR = path.join(__dirname, "./build/");
 
-const tplConfig = eval("(" + fs.readFileSync(tplScript.getPath(BASE_DIR, "tpl-config.json"), {
+
+const tplScript = require("./core/TplScript.js");
+const args = process.argv.splice(2);
+
+const configFile = tplScript.getPath(__dirname, args && args[0] || "./build/config.json");
+const BASE_DIR = path.dirname(configFile);
+const tplConfig = eval("(" + fs.readFileSync(configFile, {
 	encoding: "utf-8"
 }) + ")");
+
 
 const BASE_OUT_DIR = tplScript.getPath(BASE_DIR, tplConfig.out);
 const encoding = tplConfig.encoding || "utf-8";
@@ -18,7 +24,7 @@ if(includeSuffix == tplSuffix) {
 	throw new Error("unexpected:includeSuffix == tplSuffix");
 }
 
-const globalContext = tplConfig.attrs||{};
+const globalContext = tplConfig.attrs || {};
 
 tplPaths.forEach((file) => {
 	if(path.extname(file) == tplSuffix) {

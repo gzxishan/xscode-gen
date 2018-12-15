@@ -2,10 +2,9 @@
   "name": "xscode-gen",
   "version": "1.0.0",
   "description": "代码生成器",
-  "main": "index.js",
-  "scripts": {
-    
-  },
   "author": "chenyg",
-  "license": "Apache License Version 2.0"
+  "license": "Apache License Version 2.0",
+  "devDependencies": {
+    
+  }
 }
