@@ -1,5 +1,4 @@
 const Lexer1_TYPE_STRING = "String";
-const Lexer1_TYPE_OTHER = "Other";
 const Lexer1_TYPE1 = "<%!";
 const Lexer1_TYPE2 = "<%=";
 const Lexer1_TYPE3 = "<%@";
@@ -15,7 +14,7 @@ function Lexer1(content) {
 	this.analyze = function() {
 		goNext(start);
 		if(cache.length) {
-			newPartAndNext(Lexer1_TYPE_OTHER);
+			newPartAndNext(Lexer1_TYPE_STRING);
 		}
 		this.length = parts.length;
 	};
@@ -73,12 +72,6 @@ function Lexer1(content) {
 			case "%":
 				goNext(state9);
 				break;
-			case "'":
-				goNext(state11);
-				break;
-			case "\"":
-				goNext(state12);
-				break;
 			default:
 				goNext(state7);
 				break;
@@ -86,11 +79,10 @@ function Lexer1(content) {
 	}
 
 	function state1() {
-		var c = get();
-		if(c == "%") {
+		if(get() == "%") {
 			goNext(state2)
-		} else if(c == "'" || c == "\"") {
-			goNext(state8);
+		} else if(get() == "<") {
+			goNext(state8_effect, true);
 		} else {
 			goNext(state7);
 		}
@@ -130,8 +122,6 @@ function Lexer1(content) {
 
 	function state7() {
 		switch(get()) {
-			case "'":
-			case "\"":
 			case "<":
 			case "%":
 				goNext(state8_effect, true);
@@ -142,7 +132,7 @@ function Lexer1(content) {
 	}
 
 	function state8_effect() {
-		newPartAndNext(Lexer1_TYPE_OTHER, 1);
+		newPartAndNext(Lexer1_TYPE_STRING, 1);
 	}
 
 	function state9() {
@@ -155,34 +145,6 @@ function Lexer1(content) {
 
 	function state10_effect() {
 		newPartAndNext(Lexer1_TYPE5);
-	}
-
-	function isNewLine() {
-		return /[\r\n]/.test(get());
-	}
-
-	function state11() {
-		if(isNewLine()) {
-			goNext(state8_effect, true);
-		} else if(get() == "'") {
-			goNext(state13_effect, true);
-		} else {
-			goNext(state11);
-		}
-	}
-
-	function state12() {
-		if(isNewLine()) {
-			goNext(state8_effect, true);
-		} else if(get() == "\"") {
-			goNext(state13_effect, true);
-		} else {
-			goNext(state12);
-		}
-	}
-
-	function state13_effect() {
-		newPartAndNext(Lexer1_TYPE_STRING);
 	}
 }
 
@@ -363,12 +325,12 @@ function Lexer2(content) {
 			newPartAndNext(TYPE_CONTENT);
 		}
 		this.length = parts.length;
-		for(let i = 0; i < parts.length - 1; i++) {
-			let part = parts[i];
-			if(part.type == TYPE_CONTENT && parts[i + 1].type != TYPE_CONTENT) {
-				part.value = trimRL(part.value);
-			}
-		}
+//		for(let i = 0; i < parts.length - 1; i++) {
+//			let part = parts[i];
+//			if(part.type == TYPE_CONTENT && parts[i + 1].type != TYPE_CONTENT) {
+//				part.value = trimRL(part.value);
+//			}
+//		}
 	};
 	this.get = function(index) {
 		return parts[index];

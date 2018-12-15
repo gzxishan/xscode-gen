@@ -43,8 +43,9 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 		contextMap[name] = globalContextMap[name];
 	}
 	contextMap.__xs_code_gen_bridge__ = __xs_code_gen_bridge__;
+	contextMap.console=console;
 
-	let outPath = _getPath(baseOutDir, path.basename(currentFile, path.extname(currentFile))) + ".txt";
+	let outPath = path.join(baseOutDir, path.basename(currentFile, path.extname(currentFile))) + ".txt";
 	let write = true;
 	for(let i = 0; i < lexer2.length; i++) {
 		let item = lexer2.get(i);
@@ -78,15 +79,34 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 					let attrs = item.value;
 					for(let name in attrs) {
 						var attrValue = attrs[name];
+
+						if(attrValue) { //处理属性
+							let strPast = "";
+							while(true) {
+								var rs = /\$\{([a-zA-Z0-9_.$-]+)\}/.exec(attrValue);
+								if(rs) {
+									let varName = rs[1];
+									strPast += attrValue.substring(0, rs.index);
+									strPast += contextMap[varName] === undefined || contextMap[varName] === null ? "" : contextMap[varName];
+									attrValue = attrValue.substring(rs.index + rs[0].length);
+								} else {
+									strPast += attrValue;
+									break;
+								}
+							}
+							attrValue = strPast;
+						}
 						if(/^$\{[a-zA-Z0-9_.$-]+\}$/.test(attrValue)) {
 							attrValue = contextMap[attrValue.substring(2, attrValue.length - 1)];
-							if(attrValue === null || attrValue === undefined) {
-								continue;
-							}
+
+						}
+						if(attrValue === null || attrValue === undefined) {
+							console.log("attr " + name + " is empty:file=" + currentFile);
+							continue;
 						}
 						switch(name) {
 							case "out": //设置输出文件
-								outPath = _getPath(baseOutDir, attrValue);
+								outPath = path.join(baseOutDir, attrValue);
 								break;
 							case "write":
 								if(attrValue === "false" || attrValue === false || attrValue === "0") {
@@ -151,7 +171,7 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 			delete globalContextMap[name];
 		}
 		for(let name in globalKeys) {
-			if(name != "out") {
+			if(name != "out"&&name!="console") {
 				globalContextMap[name] = contextMap[name];
 			}
 		}
@@ -169,7 +189,7 @@ function _getPath(base, pathStr) {
 		return base;
 	}
 	pathStr = pathStr.replace("/", path.sep);
-	if(pathStr.charAt(0) == path.sep) {
+	if(pathStr.charAt(0) == path.sep||pathStr.indexOf(":")>0) {
 		return pathStr;
 	} else {
 		return path.join(base, pathStr);
