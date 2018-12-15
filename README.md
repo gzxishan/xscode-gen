@@ -1,2 +1,2 @@
 # xscode-gen
-代码生成器
+[documentation](./doc/index.md)

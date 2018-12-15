@@ -1,0 +1,11 @@
+{
+	"tpl": "../tpl/g2d1",
+	"out": "./out",
+	"encoding": "utf-8",
+	"outEncoding": "utf-8",
+	"includeSuffix": ".include",
+	"tplSuffix": ".jsp",
+	"attrs":{
+		"title":"你啊号啊"
+	}
+}
