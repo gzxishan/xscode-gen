@@ -6,7 +6,7 @@
 1. 安装node环境
 2. node main.js 配置文件路径
 <br>
-说明：配置文件路径默认为选择build/config.json
+说明：配置文件路径默认为:build/config.json
 
 ## 二、配置文件说明
 ```
