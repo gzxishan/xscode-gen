@@ -32,6 +32,10 @@ tplPaths.forEach((file) => {
 		let result = tplScript.exeScript(BASE_OUT_DIR, file, globalContext, includeSuffix, encoding);
 		let outFile = result.out;
 		let content = result.content;
+		if(!result.write){
+			console.log("not write file:", outFile);
+			return;
+		}
 		console.log("write file:", outFile);
 		createFileSync(outFile);
 		fs.writeFileSync(outFile, content, {

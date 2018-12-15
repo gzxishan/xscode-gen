@@ -321,7 +321,7 @@ function LexerConfig(content) {
 
 	function state8_effect() {
 		//忽略
-		newPartAndNext(undefined,undefined,true);
+		newPartAndNext(undefined, undefined, true);
 	}
 
 }
@@ -333,6 +333,20 @@ const TYPE_LOCAL = "<%%>";
 const TYPE_GLOBAL = "<%!%>";
 const TYPE_SET = "<%=%>";
 const TYPE_CONFIG = "<%@%>";
+
+function trimRL(str) {
+	if(str) {
+		str = str.replace(/((\r\n)|(\n)|(\r))$/g, "");
+	}
+	return str;
+};
+
+function trimLL(str) {
+	if(str) {
+		str = str.replace(/^((\r\n)|(\n)|(\r))/g, "");
+	}
+	return str;
+};
 
 function Lexer2(content) {
 	let lexer1 = new Lexer1(content);
@@ -349,6 +363,12 @@ function Lexer2(content) {
 			newPartAndNext(TYPE_CONTENT);
 		}
 		this.length = parts.length;
+		for(let i = 0; i < parts.length - 1; i++) {
+			let part = parts[i];
+			if(part.type == TYPE_CONTENT && parts[i + 1].type != TYPE_CONTENT) {
+				part.value = trimRL(part.value);
+			}
+		}
 	};
 	this.get = function(index) {
 		return parts[index];
@@ -391,7 +411,8 @@ function Lexer2(content) {
 		}
 		var as = []
 		for(let i = 0; i < cache.length; i++) {
-			as.push(cache[i].value);
+			let value = cache[i].value;
+			as.push(value);
 		}
 		var part = {
 			type: type,

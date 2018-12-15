@@ -45,6 +45,7 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 	contextMap.__xs_code_gen_bridge__ = __xs_code_gen_bridge__;
 
 	let outPath = _getPath(baseOutDir, path.basename(currentFile, path.extname(currentFile))) + ".txt";
+	let write = true;
 	for(let i = 0; i < lexer2.length; i++) {
 		let item = lexer2.get(i);
 		let valId = "var-" + (exeIdCount++);
@@ -76,20 +77,32 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 				{
 					let attrs = item.value;
 					for(let name in attrs) {
+						var attrValue = attrs[name];
+						if(/^$\{[a-zA-Z0-9_.$-]+\}$/.test(attrValue)) {
+							attrValue = contextMap[attrValue.substring(2, attrValue.length - 1)];
+							if(attrValue === null || attrValue === undefined) {
+								continue;
+							}
+						}
 						switch(name) {
 							case "out": //设置输出文件
-								{
-									outPath = _getPath(baseOutDir, attrs[name]);
+								outPath = _getPath(baseOutDir, attrValue);
+								break;
+							case "write":
+								if(attrValue === "false" || attrValue === false || attrValue === "0") {
+									write = false;
 								}
 								break;
 							case "include": //导入子模板
 								if(includeDeep > 100) {
 									throw new Error("include too deep:" + includeDeep);
 								} else {
-									let file = _getPath(path.dirname(currentFile), attrs[name] + (path.extname(attrs[name]) == includeSuffix ? "" : includeSuffix));
+									let file = _getPath(path.dirname(currentFile), attrValue + (path.extname(attrValue) == includeSuffix ? "" : includeSuffix));
 									let rs = _exeScript(baseOutDir, file, globalContextMap, includeDeep, includeSuffix, encoding);
-									__xs_code_gen_bridge__.content[valId] = rs.content;
-									scriptLocalQueue.push('out.print(__xs_code_gen_bridge__.getContent("' + valId + '"));');
+									if(rs.write) {
+										__xs_code_gen_bridge__.content[valId] = rs.content;
+										scriptLocalQueue.push('out.print(__xs_code_gen_bridge__.getContent("' + valId + '"));');
+									}
 								}
 								break;
 						}
@@ -116,35 +129,38 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 	}
 
 	var buffers = [];
-	contextMap.out = {
-		print(...objs) {
-			for(let i = 0; i < objs.length; i++) {
-				buffers.push(objs[i]);
+	if(write) {
+		contextMap.out = {
+			print(...objs) {
+				for(let i = 0; i < objs.length; i++) {
+					buffers.push(objs[i]);
+				}
+			},
+			println(...objs) {
+				this.print.apply(this, objs);
+				buffers.push("\n");
 			}
-		},
-		println(...objs) {
-			this.print.apply(this, objs);
-			buffers.push("\n");
 		}
-	}
 
-	//执行局部脚本
-	code = "(function(){\n" + scriptLocalQueue.join("\n") + "\n})();";
-	script = new vm.Script(code, options);
-	script.runInContext(context);
+		//执行局部脚本
+		code = "(function(){\n" + scriptLocalQueue.join("\n") + "\n})();";
+		script = new vm.Script(code, options);
+		script.runInContext(context);
 
-	for(let name in globalContextMap) {
-		delete globalContextMap[name];
-	}
-	for(let name in globalKeys) {
-		if(name != "out") {
-			globalContextMap[name] = contextMap[name];
+		for(let name in globalContextMap) {
+			delete globalContextMap[name];
+		}
+		for(let name in globalKeys) {
+			if(name != "out") {
+				globalContextMap[name] = contextMap[name];
+			}
 		}
 	}
 
 	return {
 		content: buffers.join(""),
-		out: outPath
+		out: outPath,
+		write: write
 	};
 }
 
