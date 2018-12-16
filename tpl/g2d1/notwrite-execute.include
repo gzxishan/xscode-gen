@@ -1,0 +1,7 @@
+<%@ write="false" execute="true" %>
+<%
+console.log("*************not wirte but execute!*****************");
+%>
+<div>
+*************not wirte but execute!*****************
+</div>

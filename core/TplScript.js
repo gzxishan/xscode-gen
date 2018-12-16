@@ -43,10 +43,11 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 		contextMap[name] = globalContextMap[name];
 	}
 	contextMap.__xs_code_gen_bridge__ = __xs_code_gen_bridge__;
-	contextMap.console=console;
+	contextMap.console = console;
 
 	let outPath = path.join(baseOutDir, path.basename(currentFile, path.extname(currentFile))) + ".txt";
 	let write = true;
+	let execute = undefined;
 	for(let i = 0; i < lexer2.length; i++) {
 		let item = lexer2.get(i);
 		let valId = "var-" + (exeIdCount++);
@@ -111,6 +112,15 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 							case "write":
 								if(attrValue === "false" || attrValue === false || attrValue === "0") {
 									write = false;
+								} else {
+									write = true;
+								}
+								break;
+							case "execute":
+								if(attrValue === "false" || attrValue === false || attrValue === "0") {
+									execute = false;
+								} else {
+									execute = true;
 								}
 								break;
 							case "include": //导入子模板
@@ -148,8 +158,9 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 		globalKeys[name] = true;
 	}
 
+	execute = execute === undefined||write ? write : execute;
 	var buffers = [];
-	if(write) {
+	if(execute) {
 		contextMap.out = {
 			print(...objs) {
 				for(let i = 0; i < objs.length; i++) {
@@ -171,7 +182,7 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 			delete globalContextMap[name];
 		}
 		for(let name in globalKeys) {
-			if(name != "out"&&name!="console") {
+			if(name != "out" && name != "console") {
 				globalContextMap[name] = contextMap[name];
 			}
 		}
@@ -180,7 +191,8 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 	return {
 		content: buffers.join(""),
 		out: outPath,
-		write: write
+		write: write,
+		execute: execute
 	};
 }
 
@@ -189,7 +201,7 @@ function _getPath(base, pathStr) {
 		return base;
 	}
 	pathStr = pathStr.replace("/", path.sep);
-	if(pathStr.charAt(0) == path.sep||pathStr.indexOf(":")>0) {
+	if(pathStr.charAt(0) == path.sep || pathStr.indexOf(":") > 0) {
 		return pathStr;
 	} else {
 		return path.join(base, pathStr);
