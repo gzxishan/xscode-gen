@@ -15,3 +15,5 @@ buildNumber.properties
 .DS_Store
 node_modules
 npm-debug.log
+build/out/*
+build/out2/*

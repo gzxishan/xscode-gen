@@ -17,7 +17,7 @@
 	"includeSuffix": ".include",
 	"tplSuffix": ".jsp",
 	"attrs":{
-		"title":"你啊号啊"
+		"title":"你好！"
 	}
 }
 ```
