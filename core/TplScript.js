@@ -142,25 +142,29 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 		}
 	}
 
-	let code;
-	let options = {
-		timeout: 60 * 1000
-	};
-
-	//执行当前脚本
-	code = scriptCurrentQueue.join("\n");
-	let context = vm.createContext(contextMap);
-	let script = new vm.Script(code, options);
-	script.runInContext(context);
-
-	let globalKeys = {};
-	for(let name in contextMap) {
-		globalKeys[name] = true;
-	}
-
-	execute = execute === undefined||write ? write : execute;
+	execute = execute === undefined || write ? write : execute;
 	var buffers = [];
 	if(execute) {
+
+		let script;
+		let code;
+		let context = vm.createContext(contextMap);
+		let options = {
+			timeout: 60 * 1000
+		};
+
+		code = scriptCurrentQueue.join("\n");
+		if(code) {
+			//执行 全局脚本
+			script = new vm.Script(code, options);
+			script.runInContext(context);
+		}
+
+		let globalKeys = {};
+		for(let name in contextMap) {
+			globalKeys[name] = true;
+		}
+
 		contextMap.out = {
 			print(...objs) {
 				for(let i = 0; i < objs.length; i++) {
