@@ -14,11 +14,11 @@ function doListFileRecursive(pathStr, list) {
 	if(!fs.existsSync(pathStr)) {
 		return;
 	}
-	var stat = fs.statSync(pathStr);
+	let stat = fs.statSync(pathStr);
 	if(stat.isFile()) {
 		list.push(pathStr);
 	} else {
-		var files = fs.readdirSync(pathStr);
+		let files = fs.readdirSync(pathStr);
 		files.forEach((item) => doListFileRecursive(path.join(pathStr, item), list));
 	}
 }
@@ -50,7 +50,7 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 	let execute = undefined;
 	for(let i = 0; i < lexer2.length; i++) {
 		let item = lexer2.get(i);
-		let valId = "var-" + (exeIdCount++);
+		let valId = "let-" + (exeIdCount++);
 
 		switch(item.type) {
 			case TYPE_CONTENT:
@@ -79,12 +79,12 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 				{
 					let attrs = item.value;
 					for(let name in attrs) {
-						var attrValue = attrs[name];
+						let attrValue = attrs[name];
 
 						if(attrValue) { //处理属性
 							let strPast = "";
 							while(true) {
-								var rs = /\$\{([a-zA-Z0-9_.$-]+)\}/.exec(attrValue);
+								let rs = /\$\{([a-zA-Z0-9_.$-]+)\}/.exec(attrValue);
 								if(rs) {
 									let varName = rs[1];
 									strPast += attrValue.substring(0, rs.index);
@@ -143,7 +143,7 @@ function genScript(baseOutDir, lexer2, globalContextMap, currentFile, includeDee
 	}
 
 	execute = execute === undefined || write ? write : execute;
-	var buffers = [];
+	let buffers = [];
 	if(execute) {
 
 		let script;
@@ -219,7 +219,7 @@ function _exeScript(baseOutDir, file, globalContextMap, includeDeep, includeSuff
 	let lexer2 = new Lexer2(str);
 	lexer2.analyze();
 
-	var rs = genScript(baseOutDir, lexer2, globalContextMap, file, includeDeep + 1, includeSuffix, encoding);
+	let rs = genScript(baseOutDir, lexer2, globalContextMap, file, includeDeep + 1, includeSuffix, encoding);
 
 	return rs;
 };
@@ -235,7 +235,7 @@ module.exports = {
 		} else {
 			dir = base;
 		}
-		var as = [];
+		let as = [];
 		doListFileRecursive(dir, as);
 		return as;
 	}

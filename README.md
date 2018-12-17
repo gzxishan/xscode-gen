@@ -3,10 +3,15 @@
 # 帮助文档
 
 ## 一、使用
-1. 安装node环境
+1. 安装nodejs环境
 2. node main.js 配置文件路径
 - 说明：配置文件路径默认为:build/config.json
-
+```
+>node main.js build/config2.js
+```
+```
+>node main.js E:\workspace\idea2018\xscode-gen\build\config2.js
+```
 ## 二、配置文件说明
 ```
 {

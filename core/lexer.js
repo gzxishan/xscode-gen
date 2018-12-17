@@ -54,7 +54,7 @@ function Lexer1(content) {
 			index -= backStep;
 			cache.splice(cache.length - backStep, backStep);
 		}
-		var part = {
+		let part = {
 			type: type,
 			value: cache.join("")
 		};
@@ -195,6 +195,7 @@ function LexerConfig(content) {
 	 * @param {Object} backStep backStep 为0或undefind表示push当前字符到cache、并把index增加1，否则表示回退
 	 */
 	function newPartAndNext(type, backStep, ignore) {
+		let part;
 		if(!ignore) {
 			if(backStep) {
 				index -= backStep;
@@ -204,7 +205,7 @@ function LexerConfig(content) {
 				cache.splice(0, 1);
 				cache.splice(cache.length - 1, 1);
 			}
-			var part = {
+			part = {
 				type: type,
 				value: cache.join("")
 			};
@@ -325,12 +326,12 @@ function Lexer2(content) {
 			newPartAndNext(TYPE_CONTENT);
 		}
 		this.length = parts.length;
-//		for(let i = 0; i < parts.length - 1; i++) {
-//			let part = parts[i];
-//			if(part.type == TYPE_CONTENT && parts[i + 1].type != TYPE_CONTENT) {
-//				part.value = trimRL(part.value);
-//			}
-//		}
+		//		for(let i = 0; i < parts.length - 1; i++) {
+		//			let part = parts[i];
+		//			if(part.type == TYPE_CONTENT && parts[i + 1].type != TYPE_CONTENT) {
+		//				part.value = trimRL(part.value);
+		//			}
+		//		}
 	};
 	this.get = function(index) {
 		return parts[index];
@@ -353,7 +354,7 @@ function Lexer2(content) {
 	}
 
 	function get() {
-		var v = lexer1.get(index);
+		let v = lexer1.get(index);
 		return v && v.type;
 	}
 
@@ -371,12 +372,12 @@ function Lexer2(content) {
 			cache.splice(0, 1);
 			cache.splice(cache.length - 1, 1);
 		}
-		var as = []
+		let as = []
 		for(let i = 0; i < cache.length; i++) {
 			let value = cache[i].value;
 			as.push(value);
 		}
-		var part = {
+		let part = {
 			type: type,
 			value: as.join("")
 		};
@@ -487,7 +488,7 @@ function Lexer2(content) {
 	}
 
 	function state7_effect() {
-		var part = newPartAndNext(TYPE_SET);
+		let part = newPartAndNext(TYPE_SET);
 		part.value && (part.value = part.value.trim());
 	}
 
@@ -495,7 +496,7 @@ function Lexer2(content) {
 		let part = newPartAndNext(TYPE_CONFIG);
 		let lc = new LexerConfig(part.value);
 		lc.analyze();
-		var attrs = {};
+		let attrs = {};
 		for(let i = 0; i < lc.length; i++) {
 			let name = lc.get(i);
 			let eq = lc.get(i + 1);
