@@ -20,7 +20,10 @@ function Lexer1(content) {
 	};
 
 	this.get = function(index) {
-		return parts[index];
+		return index==this.length?{
+			type:Lexer1_TYPE_STRING,
+			value:""
+		}:parts[index];
 	};
 
 	/**
@@ -33,7 +36,7 @@ function Lexer1(content) {
 			stateFun();
 		} else {
 			index++;
-			if(index < content.length) {
+			if(index <= content.length) {
 				cache.push(get());
 				stateFun();
 			}
@@ -41,7 +44,7 @@ function Lexer1(content) {
 	}
 
 	function get() {
-		return content[index];
+		return index == content.length ? "" : content[index];
 	}
 
 	/**
@@ -182,7 +185,7 @@ function LexerConfig(content) {
 			stateFun();
 		} else {
 			index++;
-			if(index < content.length) {
+			if(index <= content.length) {
 				cache.push(get());
 				stateFun();
 			}
@@ -217,7 +220,7 @@ function LexerConfig(content) {
 	}
 
 	function get() {
-		return content[index];
+		return index == content.length ? "" : content[index];
 	}
 
 	function start() {
@@ -326,12 +329,6 @@ function Lexer2(content) {
 			newPartAndNext(TYPE_CONTENT);
 		}
 		this.length = parts.length;
-		//		for(let i = 0; i < parts.length - 1; i++) {
-		//			let part = parts[i];
-		//			if(part.type == TYPE_CONTENT && parts[i + 1].type != TYPE_CONTENT) {
-		//				part.value = trimRL(part.value);
-		//			}
-		//		}
 	};
 	this.get = function(index) {
 		return parts[index];
@@ -346,7 +343,7 @@ function Lexer2(content) {
 			stateFun();
 		} else {
 			index++;
-			if(index < lexer1.length) {
+			if(index <= lexer1.length) {
 				cache.push(lexer1.get(index));
 				stateFun();
 			}
